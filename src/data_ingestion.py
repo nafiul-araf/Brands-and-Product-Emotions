@@ -44,7 +44,7 @@ def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
         logger.debug('Basic preprocessing completed')
         return df
     except KeyError as e:
-        logger.debug(f'Missing column in the dataframe {e}')
+        logger.error(f'Missing column in the dataframe {e}')
         raise
     except Exception as e:
         logger.error(f'Unexpected error occured while loading the file: {e}')
