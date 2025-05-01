@@ -4,6 +4,7 @@ import pandas as pd
 import pickle
 import logging
 from sklearn.ensemble import GradientBoostingClassifier
+import yaml
 
 log_dir = 'logs'
 os.makedirs(log_dir, exist_ok=True)
@@ -24,6 +25,23 @@ file_handler.setFormatter(formatter)
 
 logger.addHandler(console_handler)
 logger.addHandler(file_handler)
+
+def load_params(param_path: str) -> dict:
+    "Load the parameters yaml path"
+    try:
+        with open(param_path, 'r') as file:
+            params = yaml.safe_load(file)
+        logger.debug(f'Parameters file loaded from {param_path}')
+        return params
+    except FileNotFoundError as e:
+        logger.error(f'File not found {e}')
+        raise
+    except yaml.YAMLError as e:
+        logger.error(f'YAML error: {e}')
+        raise
+    except Exception as e:
+        logger.error(f'Unexpected error occured while loading the file: {e}')
+        raise
 
 def load_data(file_path: str) -> pd.DataFrame:
     "Load the CSV file"
@@ -83,7 +101,8 @@ def save_model(model, file_path: str) -> None:
 
 def main():
     try:
-        params = {'n_estimators': 50, 'random_state': 42}
+        params = load_params('params.yaml')
+        params = params['model_building']
         train_data = load_data('./data/feature_trans/train_tfidf.csv')
         X_train = train_data.iloc[:, :-1].values
         y_train = train_data.iloc[:, -1].values
